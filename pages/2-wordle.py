@@ -1,4 +1,9 @@
+import random
 import streamlit as st
+from words import word_list
+from string import ascii_uppercase
+
+st.set_page_config(initial_sidebar_state="expanded")
 
 #############################################################
 
@@ -36,6 +41,8 @@ def double_letters(word):
 
 
 def next_step(word, correct):
+
+    return 'CaseA'
 
     wdbl,wlt = (double_letters(word))
     cdbl,clt = (double_letters(correct))
@@ -170,6 +177,11 @@ def caseA(word, correct, results):
 
                 crtletters.remove(word[i])
 
+                tempindx = ascii_uppercase.index(word[i].upper())
+
+                letter[tempindx] = ":green-background[" + word[i].upper() + "]"
+
+
 
         for i in range(5):
 
@@ -187,19 +199,46 @@ def caseA(word, correct, results):
 
                         results[i] = 'Y'
 
+                        tempindx = ascii_uppercase.index(word[i].upper())
+
+                        if word[i].upper() in letter:
+                            letter[tempindx] = ":orange-background[" + word[i].upper() + "]"
+
+                        elif (word[i].upper() not in letter) and (":grey-background[" + word[i].upper() + "]" in letter):
+                            letter[tempindx] = ":orange-background[" + word[i].upper() + "]"
+
+                        #st.write(letter)
+
                     elif word[i] not in letters and results[i] == '':
 
                         results[i] = 'N'
 
+                        if word[i].upper() in letter:
+                            tempindx = ascii_uppercase.index(word[i].upper())
+
+                            letter[tempindx] = ":grey-background[" + word[i].upper() + "]"
+
                     break
 
                 elif results[i] == '':
+
                     results[i] = 'N'
+
+                    if word[i].upper() in letter:
+                        tempindx = ascii_uppercase.index(word[i].upper())
+
+                        letter[tempindx] = ":grey-background[" + word[i].upper() + "]"
+
 
         for i in range(5):
             if results[i] == '':
+
                 results[i] = 'N'
 
+                if word[i].upper() in letter:
+                    tempindx = ascii_uppercase.index(word[i].upper())
+
+                    letter[tempindx] = ":grey-background[" + word[i].upper() + "]"
 
     return results
 
@@ -227,14 +266,21 @@ def check_word(word, startcorrect):
 
 def do_next():
 
+    global finishedGame
+    global win
+
+
     tryingList = [str(cols[1].inpt).upper(), str(cols[2].inpt).upper(),
                   str(cols[3].inpt).upper(), str(cols[4].inpt).upper(),
                   str(cols[5].inpt).upper()]
 
+    if len(tryingList) != 5:
+        return
 
     answer = check_word(tryingList, correct)
 
     answers = st.session_state['answers']
+
 
     if answer == 'correct':
 
@@ -248,9 +294,12 @@ def do_next():
 
         # Win
 
+        finishedGame = 'y'
+        win = 'y'
+
     else:
         for i in range(1, 6):
-            if (st.session_state['char'+str(i)] != '') and (st.session_state['char'+str(i)] != None):
+            if (st.session_state['char'+str(i)] != '') and (st.session_state['char' + str(i)] is not None):
                 if answers[29] == '☐':
                     for i in range(24, -1, -1):
                         answers[i + 5] = answers[i]
@@ -259,6 +308,9 @@ def do_next():
 
                 else:
                     # Loss
+                    finishedGame = 'y'
+                    win = 'n'
+
                     pass
 
 
@@ -268,15 +320,19 @@ def clear():
 
 #############################################################
 
-
-colsTop = st.columns([2.6, 3, 2.5])
+colsTop = st.columns([2.5, 3, 2.5])
 colsTop[1].title = colsTop[1].title(":rainbow[W O R D L E]")
 
 st.text(' ')
 
 colsMid = st.columns([0.9, 5, 1])
-colsMid[1].button = colsMid[1].button('SUBMIT', on_click=do_next,
+button_pressed = colsMid[1].button('SUBMIT', on_click=do_next,
                                       use_container_width=True)
+
+
+with st.sidebar:
+    reset_pressed = st.button("RESET", on_click=clear, use_container_width=True)
+
 
 cols = st.columns(7, gap='medium')
 
@@ -288,6 +344,13 @@ b4 = st.container()
 b5 = st.container()
 b6 = st.container()
 
+st.markdown("""
+    <style>
+    [data-testid=stVerticalBlock]:nth-of-type(1) [data-testid=stVerticalBlock]{
+        gap: 0rem;
+    }
+    </style>
+    """,unsafe_allow_html=True)
 
 #############################################################
 
@@ -306,11 +369,23 @@ else:
             answers[i] = '☐'
 
 
+if "letter" not in st.session_state:
+    letter = list(ascii_uppercase)
+
+else:
+    letter = st.session_state["letter"]
+
+#if "letterD" not in st.session_state:
+    #letterD = list(ascii_uppercase)
+
+#else:
+    #letterD = st.session_state["letterD"]
+
 
 # st.write(answers)
 
 if 'correct' not in st.session_state:
-    correct = 'reels'
+    correct = random.choice(word_list)
     correct = correct.upper()
     st.session_state['correct'] = correct
 else:
@@ -321,10 +396,6 @@ else:
 if 'text' not in st.session_state:
     st.session_state.text = 0
 else:
-    nextwd = 0
-
-if colsMid[1].button:
-    password = ""
     nextwd = 0
 
 #############################################################
@@ -342,6 +413,7 @@ with b1:
     cols[3].answr1 = cols[3].title(str(answers[2]))
     cols[4].answr1 = cols[4].title(str(answers[3]))
     cols[5].answr1 = cols[5].title(str(answers[4]))
+
 
 with b2:
     cols[1].answr2 = cols[1].title(str(answers[5]))
@@ -378,11 +450,57 @@ with b6:
     cols[4].answr6 = cols[4].title(str(answers[28]))
     cols[5].answr6 = cols[5].title(str(answers[29]))
 
-st.text(' ')
+colsAlpha = st.columns([0.6, 1, 1, 1, 1, 1, 1, 1, 0.6], gap='medium')
 
-colsBottom = st.columns([0.9, 5, 1])
-colsBottom[1].reset = colsBottom[1].button("RESET", on_click=clear,
-                                           use_container_width=True)
+c1 = st.container()
+c2 = st.container()
+c3 = st.container()
+c4 = st.container()
+c5 = st.container()
+
+st.markdown("""
+    <style>
+    [data-testid=stVerticalBlock]:nth-of-type(1) [data-testid=stVerticalBlock]{
+        gap: 0rem;
+    }
+    </style>
+    """,unsafe_allow_html=True)
+
+with c1:
+    colsAlpha[1].letA = colsAlpha[1].header(letter[0])
+    colsAlpha[2].letB = colsAlpha[2].header(letter[1])
+    colsAlpha[3].letC = colsAlpha[3].header(letter[2])
+    colsAlpha[4].letD = colsAlpha[4].header(letter[3])
+    colsAlpha[5].letE = colsAlpha[5].header(letter[4])
+    colsAlpha[6].letF = colsAlpha[6].header(letter[5])
+    colsAlpha[7].letG = colsAlpha[7].header(letter[6])
+
+
+with c2:
+    colsAlpha[1].letH = colsAlpha[1].header(letter[7])
+    colsAlpha[2].letI = colsAlpha[2].header(letter[8])
+    colsAlpha[3].letJ = colsAlpha[3].header(letter[9])
+    colsAlpha[4].letK = colsAlpha[4].header(letter[10])
+    colsAlpha[5].letL = colsAlpha[5].header(letter[11])
+    colsAlpha[6].letM = colsAlpha[6].header(letter[12])
+    colsAlpha[7].letN = colsAlpha[7].header(letter[13])
+
+with c3:
+    colsAlpha[1].letO = colsAlpha[1].header(letter[14])
+    colsAlpha[2].letP = colsAlpha[2].header(letter[15])
+    colsAlpha[3].letQ = colsAlpha[3].header(letter[16])
+    colsAlpha[4].letR = colsAlpha[4].header(letter[17])
+    colsAlpha[5].letS = colsAlpha[5].header(letter[18])
+    colsAlpha[6].letT = colsAlpha[6].header(letter[19])
+    colsAlpha[7].letU = colsAlpha[7].header(letter[20])
+
+with c4:
+    colsAlpha[2].letV = colsAlpha[2].header(letter[21])
+    colsAlpha[3].letW = colsAlpha[3].header(letter[22])
+    colsAlpha[4].letX = colsAlpha[4].header(letter[23])
+    colsAlpha[5].letY = colsAlpha[5].header(letter[24])
+    colsAlpha[6].letZ = colsAlpha[6].header(letter[25])
+
 
 #############################################################
 
@@ -393,10 +511,15 @@ tryingList = [str(cols[1].inpt).upper(), str(cols[2].inpt).upper(),
 trying = ''.join(tryingList)
 
 st.session_state.answers = answers
+st.session_state.letter = letter
+#st.session_state.letterD = letterD
 
-if colsMid[1].button:
+if button_pressed:
     st.session_state["textList"] = tryingList
 
-if colsBottom[1].reset:
+if reset_pressed:
+    del st.session_state["letter"]
+    #del st.session_state["letterD"]
     del st.session_state["answers"]
     del st.session_state['correct']
+
