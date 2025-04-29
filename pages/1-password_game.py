@@ -175,7 +175,7 @@ successes = 1
 
 ##############################
 
-if st.button('Reset', on_click=clear_text):
+if st.sidebar.button('Reset', use_container_width=True, on_click=clear_text):
     password = ""
     del st.session_state.rando
     del st.session_state.successes
@@ -296,21 +296,22 @@ if successes >= 10 or max >= 10:
     else:
         slot10.error("**Rule 10:** " + "  \n  " + "Your password must contain the greatest "
                                                   "common factor of " + d + " and " + e + ".")
-
 if successes >= 11 or max >= 11:
     if rule11(password) == True:
-        slot11.success("**Rule 11:** " + "  \n  " + "Your password contains the current phase of the moon as an emoji.")
-        successes += 1
-    else:
-        slot11.error("**Rule 11:** " + "  \n  " + "Your password must contain the the current phase of the moon as an emoji.")
-
-if successes >= 12 or max >= 12:
-    if rule12(password) == True:
-        slot12.success("**Rule 12:** " + "  \n  " + "Your password contains the most popular fruit in the world.")
+        slot11.success("**Rule 11:** " + "  \n  " + "Your password contains the most popular fruit in the world.")
         successes += 1
     else:
         topSlot.warning("**The rest of the rules are a work-in-progress.**")
-        # slot12.error("**Rule 12:** " + "  \n  " + "Your password must contain the most popular fruit in the world.")
+        # slot12.error("**Rule 11:** " + "  \n  " + "Your password must contain the most popular fruit in the world.")
+
+if successes >= 12 or max >= 12:
+    if rule12(password) == True:
+        slot12.success("**Rule 12:** " + "  \n  " + "Your password contains the current phase of the moon as an emoji.")
+        successes += 1
+    else:
+        slot12.error("**Rule 12:** " + "  \n  " + "Your password must contain the the current phase of the moon as an emoji.")
+
+
 
 if successes >= 13 or max >= 13:
     if rule13(password) == True:
