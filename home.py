@@ -4,7 +4,7 @@ st.title(":rainbow[Streamlit Project]")
 
 st.markdown(
     """
-    ##### This is a app of several streamlit projects/games.  
+    ##### This is a project containing several smaller streamlit projects/games.  
     """
 )
 
