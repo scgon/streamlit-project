@@ -523,3 +523,15 @@ if reset_pressed:
     del st.session_state["answers"]
     del st.session_state['correct']
 
+st.divider()
+
+st.markdown(
+    """
+    ## How To Play
+    ##### You get 6 chances to guess a 5-letter word!
+    ###### The highlight of the letter will change to show how close your guess was to the word:  
+    :green-background[Green highlight means the letter is in the word and in the correct spot.]  
+    :orange-background[Yellow highlight means the letter is in the word but in the wrong spot.]  
+    :gray-background[Gray highlight means the letter is not in the word in any spot.]
+    """
+)

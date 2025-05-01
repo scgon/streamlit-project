@@ -148,7 +148,7 @@ def rule20(password):
 
 ##############################
 
-st.title("The Password Game!")
+st.title(":rainbow[The Password Game!]")
 
 password = st.text_input("Please choose a password!", key="password")
 
