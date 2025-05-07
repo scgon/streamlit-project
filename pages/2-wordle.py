@@ -40,116 +40,6 @@ def double_letters(word):
     return doubleletters,lt
 
 
-def next_step(word, correct):
-
-    return 'CaseA'
-
-    wdbl,wlt = (double_letters(word))
-    cdbl,clt = (double_letters(correct))
-
-    wltstr = ''.join(wlt)
-    cltstr = ''.join(clt)
-
-    a = []
-
-    # check if doubles are in the word
-    if (len(wdbl) == 0 or len(cdbl) == 0):
-
-        # if word has none:
-        if len(wdbl) <= len(cdbl):
-            return 'Normal'
-
-        # if word has some but correct has none, we want to send to
-        else:
-
-            # only will happen if wdbl has 1, 2, or a 3 pair and the letter
-            # IS IN CORRECT
-
-            return 'CaseA'
-
-    if len(wlt) != 2:
-        if wlt[0] not in correct:
-            a.append('good')
-        else:
-            if wlt[0] in cltstr:
-                a.append('not good')
-            else:
-                a.append('bad')
-
-    else:
-        for i in range(2):
-            if wlt[i] not in correct:
-                a.append('good')
-            else:
-                if wlt[i] in cltstr:
-                    a.append('not good')
-                else:
-                    a.append('bad')
-
-
-
-    if ('bad' not in a) and ('not good' not in a):
-        print('works!')
-        return 'Normal'
-
-    # combos: 1, 2; 2, 2; 1, 3; 2, 3;
-    # total: 1, 2; 2, 2; 1, 3; 2, 3;
-           # 2, 1; 3, 1; 3, 2
-
-    # covers all containing 0:
-
-    if len(wdbl) != 2 and len(cdbl) != 2:
-        if wlt[0] == clt[0]:
-            return 'Normal'
-
-        # if it is the 11 or 33 combo but the letters aren't the same and
-        # are both in the other group
-        else:
-            return 'CaseA'
-
-    # covers all containing copies outside of the 00 and 11 copies:
-    elif len(wdbl) == len(cdbl):
-
-        # covers 1 and 3 copies:
-        if (len(wdbl) == 1 or len(cdbl) == 3):
-
-            # covers all with same letters:
-            if wlt[0] == clt[0]:
-                return 'CaseA'
-
-            # covers with different letters not in opposite
-
-            elif ((wdbl[0])[2] not in correct) or ((cdbl[0])[2] not in word):
-                return 'Normal'
-
-            # covers
-    else:
-        print("CAUGHT IN LAST -- UNSURE SITUATION")
-        return 'CaseA'
-
-    #covers all others:
-    if len(cdbl) == 1:
-        return 'Normal'
-
-
-def logicNormal(word, correct, results):
-
-    if word == correct:
-        return 'correct'
-    else:
-        for i in range(5):
-            if word[i] == correct[i]:
-                results[i] = 'G'
-            else:
-                for n in range(5):
-                    if word[i] == correct[n]:
-                        results[i] = 'Y'
-                        break
-                    results[i] = 'N'
-
-    return results
-
-
 def caseA(word, correct, results):
 
     letters = []
@@ -251,13 +141,7 @@ def check_word(word, startcorrect):
 
     word = [a.lower() for a in word]
 
-    nExt = next_step(word, correct)
-
-    if nExt == 'Normal':
-        results = logicNormal(word, correct, results)
-
-    else:
-        results = caseA(word, correct, results)
+    results = caseA(word, correct, results)
 
     # st.write(results)
 
@@ -266,9 +150,7 @@ def check_word(word, startcorrect):
 
 def do_next():
 
-    global finishedGame
-    global win
-
+    gameOver = False
 
     tryingList = [str(cols[1].inpt).upper(), str(cols[2].inpt).upper(),
                   str(cols[3].inpt).upper(), str(cols[4].inpt).upper(),
@@ -294,8 +176,11 @@ def do_next():
 
         # Win
 
-        finishedGame = 'y'
-        win = 'y'
+        st.session_state["finishedGame"] = True
+
+        st.toast("You Win!", icon="🎉")
+        st.balloons()
+        st.toast("Starting a new game")
 
     else:
         for i in range(1, 6):
@@ -307,11 +192,14 @@ def do_next():
                     printtrying(answer, tryingList)
 
                 else:
-                    # Loss
-                    finishedGame = 'y'
-                    win = 'n'
+                    gameOver = True
 
-                    pass
+
+    if gameOver == True:
+        st.session_state["finishedGame"] = True
+        st.toast("You Lose")
+        st.toast("Starting a new game")
+
 
 
 def clear():
@@ -391,6 +279,8 @@ if 'correct' not in st.session_state:
 else:
     correct = st.session_state['correct']
 
+print(correct)
+
 #############################################################
 
 if 'text' not in st.session_state:
@@ -450,6 +340,7 @@ with b6:
     cols[4].answr6 = cols[4].title(str(answers[28]))
     cols[5].answr6 = cols[5].title(str(answers[29]))
 
+
 colsAlpha = st.columns([0.6, 1, 1, 1, 1, 1, 1, 1, 0.6], gap='medium')
 
 c1 = st.container()
@@ -465,6 +356,7 @@ st.markdown("""
     }
     </style>
     """,unsafe_allow_html=True)
+
 
 with c1:
     colsAlpha[1].letA = colsAlpha[1].header(letter[0])
@@ -519,7 +411,6 @@ if button_pressed:
 
 if reset_pressed:
     del st.session_state["letter"]
-    #del st.session_state["letterD"]
     del st.session_state["answers"]
     del st.session_state['correct']
 
@@ -533,5 +424,17 @@ st.markdown(
     :green-background[Green highlight means the letter is in the word and in the correct spot.]  
     :orange-background[Yellow highlight means the letter is in the word but in the wrong spot.]  
     :gray-background[Gray highlight means the letter is not in the word in any spot.]
+    
+    
+    :small[:red[*Because of the way streamlit works and how this app is coded, after you finish a game, whenever you try to press the button or type in a character, a new game will start.]]
     """
 )
+
+if "finishedGame" in st.session_state:
+    if st.session_state["finishedGame"] == True:
+        del st.session_state["letter"]
+        del st.session_state["answers"]
+        del st.session_state['correct']
+        st.session_state["finishedGame"] = False
+    else:
+        st.session_state["finishedGame"] = False

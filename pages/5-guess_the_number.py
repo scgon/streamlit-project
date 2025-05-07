@@ -72,9 +72,12 @@ if submit:
         del st.session_state["score"]
 
         st.info("Starting new game")
+        st.balloons()
 
         if (score < st.session_state["hiscore"]) or (st.session_state["hiscore"] == 0):
             st.session_state["hiscore"] = score
+            st.toast("New highscore: " + str(score), icon="🔥")
+
 
         score = 0
 
@@ -91,6 +94,7 @@ if submit:
 if reset:
     del st.session_state["answer"]
     del st.session_state["score"]
+    score = 0
 
 st.session_state["score"] = score
 slot1.markdown("#### :blue[Your score: " + str(score) + "]")

@@ -4,12 +4,11 @@ st.title(":rainbow[Issues and Notes]")
 
 with st.container(border=True):
     st.page_link("pages/5-guess_the_number.py", label=":green[**Guess the Number**]")
-    st.write("Issue with reseting score, the score will not be reset properly. Will be fixed the next time I update this.")
-    st.write("Fix: reload the tab.")
+    st.write("Fully Functional")
 
 with st.container(border=True):
     st.page_link("pages/2-wordle.py", label=":green[**Wordle**]")
-    st.write("Mostly functional, but missing game end messages.")
+    st.write("Mostly functional, but game end messages may not work and may glitch.")
 
 with st.container(border=True):
     st.page_link("pages/1-password_game.py", label=":orange[**Password Game**]")
