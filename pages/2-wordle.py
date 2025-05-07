@@ -2,6 +2,7 @@ import random
 import streamlit as st
 from words import word_list
 from string import ascii_uppercase
+from time import sleep
 
 st.set_page_config(initial_sidebar_state="expanded")
 
@@ -151,6 +152,7 @@ def check_word(word, startcorrect):
 def do_next():
 
     gameOver = False
+    donea = False
 
     tryingList = [str(cols[1].inpt).upper(), str(cols[2].inpt).upper(),
                   str(cols[3].inpt).upper(), str(cols[4].inpt).upper(),
@@ -180,7 +182,8 @@ def do_next():
 
         st.toast("You Win!", icon="🎉")
         st.balloons()
-        st.toast("Starting a new game")
+
+        donea = True
 
     else:
         for i in range(1, 6):
@@ -193,11 +196,17 @@ def do_next():
 
                 else:
                     gameOver = True
+                    donea = True
 
+    if answers[29] != '☐':
+        gameOver = True
+        donea = True
 
     if gameOver == True:
         st.session_state["finishedGame"] = True
         st.toast("You Lose")
+
+    if donea == True:
         st.toast("Starting a new game")
 
 
