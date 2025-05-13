@@ -2,7 +2,6 @@ import random
 import streamlit as st
 from words import word_list
 from string import ascii_uppercase
-from time import sleep
 
 st.set_page_config(initial_sidebar_state="expanded")
 
@@ -435,7 +434,8 @@ st.markdown(
     :gray-background[Gray highlight means the letter is not in the word in any spot.]
     
     
-    :small[:red[*Because of the way streamlit works and how this app is coded, after you finish a game, whenever you try to press the button or type in a character, a new game will start.]]
+    :small[:red[*Because of the way streamlit works and how this app is coded, after you finish a 
+    game, whenever you try to press a button or type in a character, a new game will start.]]
     """
 )
 
