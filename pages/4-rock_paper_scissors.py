@@ -1,6 +1,7 @@
 import streamlit as st
 import random
 import pandas as pd
+import matplotlib.pyplot as plt
 
 def whoWins(player, computer):
 
@@ -43,8 +44,6 @@ comScore = 0
 tied = 0
 rDone = 0
 
-data = [["Player", score], ["Computer", comScore], ["Tie", tied]]
-
 if "score" not in st.session_state:
     score = 0
 
@@ -75,10 +74,12 @@ if "done" in st.session_state:
 
 st.divider()
 
-cols = st.columns(2)
+cols = st.columns(3)
 slot1 = cols[0].empty()
 slot2 = cols[1].empty()
-slot3 = st.empty()
+slot3 = cols[2].empty()
+slot4 = cols[0].empty()
+slot5 = cols[1].empty()
 
 st.text(" ")
 
@@ -154,12 +155,14 @@ if reset:
 
 ################################################
 
-slot1.markdown("#### :blue[Your score: " + str(score) + "]")
-slot2.markdown("#### :green[Computer score: " + str(comScore) + "]")
+slot1.markdown("#### :green[Your score: " + str(score) + "]")
+slot2.markdown("#### :red[Computer score: " + str(comScore) + "]")
+slot3.markdown("#### :blue[Tied: " + str(tied) + "]")
+slot4.markdown("#### :violet[Rounds Done: " + str(score) + "]")
 
 if "done" in st.session_state:
     if st.session_state["done"] != "Infinite":
-        slot3.markdown("#### :orange[Round: " + str(rDone) + "/" + str(rTotal) + "]")
+        slot5.markdown("#### :orange[Round: " + str(rDone) + "/" + str(rTotal) + "]")
 
 if "done" not in st.session_state:
 
@@ -176,6 +179,31 @@ if "done" not in st.session_state:
 else:
     place1.markdown("### :red[Gamemode: " + st.session_state['done'] + "]")
     place2.empty()
+
+################################################
+
+aCols = st.columns([0.6, 0.4])
+
+scoreA = score
+comScoreA = comScore
+
+if "done" in st.session_state:
+    if st.session_state["done"] == "Infinite":
+        scoreA = score - tied
+        comScoreA = comScore - tied
+
+data = {"Player": ["Player", "Computer", "Tie"], "Score": [scoreA, comScoreA, tied]}
+
+st.divider()
+
+df = pd.DataFrame(data)
+
+st.session_state['df'] = df
+
+aCols[0].bar_chart(data, x="Player", y="Score")
+
+aCols[1].dataframe(df)
+
 
 ################################################
 
