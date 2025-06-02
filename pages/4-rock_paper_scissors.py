@@ -1,7 +1,6 @@
 import streamlit as st
 import random
 import pandas as pd
-import matplotlib.pyplot as plt
 
 def whoWins(player, computer):
 
@@ -34,6 +33,15 @@ def clear():
         st.session_state['temp'] = st.session_state['rps']
     st.session_state['rps'] = None
 
+def resetIt():
+    score = 0
+    comScore = 0
+    rDone = 0
+    del st.session_state['comScore']
+    del st.session_state['score']
+    del st.session_state['rDone']
+    del st.session_state['done']
+
 
 ################################################
 
@@ -43,6 +51,8 @@ score = 0
 comScore = 0
 tied = 0
 rDone = 0
+rTotal = 0
+resetQ = False
 
 if "score" not in st.session_state:
     score = 0
@@ -66,6 +76,7 @@ place2 = st.empty()
 if "done" in st.session_state:
     if st.session_state["done"] != "Infinite":
         rTotal = st.session_state["done"][8]
+        rTotal = int(rTotal)
 
         if "rDone" in st.session_state:
             rDone = st.session_state["rDone"]
@@ -79,7 +90,6 @@ slot1 = cols[0].empty()
 slot2 = cols[1].empty()
 slot3 = cols[2].empty()
 slot4 = cols[0].empty()
-slot5 = cols[1].empty()
 
 st.text(" ")
 
@@ -95,54 +105,71 @@ with st.sidebar:
 ################################################
 
 if submit:
-    if "done" in st.session_state and st.session_state["done"] is not None:
-        if "temp" in st.session_state and st.session_state["temp"] is not None:
+    if rDone < rTotal or rTotal == 0:
+        if "done" in st.session_state and st.session_state["done"] is not None:
+            if "temp" in st.session_state and st.session_state["temp"] is not None:
 
-            computerChoice = random.choice(rpsSelect)
+                computerChoice = random.choice(rpsSelect)
 
-            wins = whoWins(st.session_state["temp"], computerChoice)
+                wins = whoWins(st.session_state["temp"], computerChoice)
 
-            if wins == "You win!":
-                score += 1
-                rDone += 1
-                colory = ":green"
-                colorc = ":red"
-
-            elif wins == "You lose!":
-                comScore += 1
-                rDone += 1
-                colory = ":red"
-                colorc = ":green"
-
-            else:
-                colory = ":blue"
-                colorc = ":blue"
-                tied += 1
-
-                if st.session_state["done"] == "Infinite":
+                if wins == "You win!":
                     score += 1
+                    rDone += 1
+                    colory = ":green"
+                    colorc = ":red"
+
+                elif wins == "You lose!":
                     comScore += 1
                     rDone += 1
+                    colory = ":red"
+                    colorc = ":green"
 
-            st.markdown("##### You selected: " + colory + "[" + st.session_state["temp"] + "]")
-            st.markdown("##### The computer selected: " + colorc + "[" + computerChoice + "]")
+                else:
+                    colory = ":blue"
+                    colorc = ":blue"
+                    tied += 1
 
-            st.text(" ")
+                    if st.session_state["done"] == "Infinite":
+                        score += 1
+                        comScore += 1
+                        rDone += 1
 
-            if wins == "You win!":
-                st.success("You win!")
+                st.markdown("##### You selected: " + colory + "[" + st.session_state["temp"] + "]")
+                st.markdown("##### The computer selected: " + colorc + "[" + computerChoice + "]")
 
-            elif wins == "You lose!":
-                st.error("You lose!")
+                st.text(" ")
+
+                if wins == "You win!":
+                    st.success("You win!")
+
+                elif wins == "You lose!":
+                    st.error("You lose!")
+
+                else:
+                    st.info("It's a tie!")
+
+
+                if score >= rTotal // 2 + 1:
+                    st.success("You win the game!")
+                    st.balloons()
+                    st.toast("Starting new game")
+
+                    resetQ = True
+
+                elif comScore >= rTotal // 2 + 1:
+                    st.error("Computer wins the game, you lose!")
+                    st.toast("Starting new game")
+
+                    resetQ = True
 
             else:
-                st.info("It's a tie!")
+                st.error("Please select rock, paper, or scissors.")
 
         else:
-            st.error("Please select rock, paper, or scissors.")
-
+            st.error("Please select a gamemode")
     else:
-        st.error("Please select a gamemode")
+        st.error("Game is finished, please reset.")
 
 if reset:
     score = 0
@@ -158,11 +185,16 @@ if reset:
 slot1.markdown("#### :green[Your score: " + str(score) + "]")
 slot2.markdown("#### :red[Computer score: " + str(comScore) + "]")
 slot3.markdown("#### :blue[Tied: " + str(tied) + "]")
-slot4.markdown("#### :violet[Rounds Done: " + str(score) + "]")
 
 if "done" in st.session_state:
     if st.session_state["done"] != "Infinite":
-        slot5.markdown("#### :orange[Round: " + str(rDone) + "/" + str(rTotal) + "]")
+        slot3.markdown("#### :orange[Round: " + str(rDone) + "/" + str(rTotal) + "]")
+    else:
+        slot4.markdown("#### :violet[Round: " + str(score) + "]")
+        slot3.markdown("#### :blue[Tied: " + str(tied) + "]")
+else:
+    slot4.markdown("#### :violet[Round: " + str(score) + "]")
+    slot3.markdown("#### :blue[Tied: " + str(tied) + "]")
 
 if "done" not in st.session_state:
 
@@ -213,3 +245,9 @@ st.session_state['rDone'] = rDone
 
 if "temp" in st.session_state:
     del st.session_state['temp']
+
+if resetQ == True:
+    resetIt()
+    score = 0
+    comScore = 0
+    rDone = 0
