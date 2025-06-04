@@ -16,12 +16,13 @@ with container1:
     st.write("Right now, the pages that are fully functional are:")
     st.page_link("pages/2-wordle.py", label=":green[**Wordle**]")
     st.page_link("pages/5-guess_the_number.py", label=":green[**Guess the Number**]")
+    st.page_link("pages/4-rock_paper_scissors.py", label=":green[**Rock-Paper-Scissors**]")
 
     st.write("The pages that are mostly functional but unfinished are:")
     st.page_link("pages/1-password_game.py", label=":orange[**Password Game**]")
 
     st.write("The pages that are in progress or partially functional are:")
-    st.page_link("pages/4-rock_paper_scissors.py", label=":orange[**Rock-Paper-Scissors**]")
+    st.markdown(":blue[***None!***]")
 
     st.write("The pages that are not functional or haven't been started are:")
     st.page_link("pages/3-tic_tac_toe.py", label=":red[**Tic-Tac-Toe**]")
