@@ -271,19 +271,20 @@ if "done" not in st.session_state:
 else:
     place1.markdown("### :red[Gamemode: " + st.session_state['done'] + "]")
 
-if st.session_state["done"] == "Random Simulation" and "simamount" not in st.session_state:
-    simamount = place2.number_input("How many simulations should run?", 1, 1000)
-    simamountSubmit = place3.button("Submit Simulations Amount", use_container_width=True, key="simamountsubmit")
-    hidden = True
-
-    if simamountSubmit:
-        place2.markdown("#### :blue[" + str(simamount) + " Simulations Will Run]")
+if "done" in st.session_state:
+    if st.session_state["done"] == "Random Simulation" and "simamount" not in st.session_state:
+        simamount = place2.number_input("How many simulations should run?", 1, 1000)
+        simamountSubmit = place3.button("Submit Simulations Amount", use_container_width=True, key="simamountsubmit")
+        hidden = True
+    
+        if simamountSubmit:
+            place2.markdown("#### :blue[" + str(simamount) + " Simulations Will Run]")
+            place3.empty()
+            st.session_state["simamount"] = simamount
+    
+    elif st.session_state["done"] == "Random Simulation" and "simamount" in st.session_state:
+        place2.markdown("#### :blue[" + str(st.session_state["simamount"]) + " Simulations Will Run]")
         place3.empty()
-        st.session_state["simamount"] = simamount
-
-elif st.session_state["done"] == "Random Simulation" and "simamount" in st.session_state:
-    place2.markdown("#### :blue[" + str(st.session_state["simamount"]) + " Simulations Will Run]")
-    place3.empty()
     
 if hidden == True:
     #submitSlot.empty()
