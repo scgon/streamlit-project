@@ -191,7 +191,7 @@ if submit:
                         tied += 1
                         rDone += 1
                 
-                while score == comScore:
+                if score == comScore:
                     st.warning("It's a tie! Running an extra round:")
                     playerChoice = random.choice(rpsSelect)
                     computerChoice = random.choice(rpsSelect)
@@ -235,10 +235,14 @@ if reset:
     score = 0
     comScore = 0
     rDone = 0
-    del st.session_state['comScore']
-    del st.session_state['score']
-    del st.session_state['rDone']
-    del st.session_state['done']
+    if "comScore" in st.session_state:
+        del st.session_state['comScore']
+    if "score" in st.session_state:
+        del st.session_state['score']
+    if "rDone" in st.session_state:
+        del st.session_state['rDone']
+    if "done" in st.session_state:
+        del st.session_state['done']
 
 ################################################
 
