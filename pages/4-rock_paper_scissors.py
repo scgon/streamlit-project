@@ -38,11 +38,16 @@ def resetIt():
     score = 0
     comScore = 0
     rDone = 0
-    del st.session_state['comScore']
-    del st.session_state['score']
-    del st.session_state['rDone']
-    del st.session_state['done']
-    del st.session_state['simamount']
+    if "comScore" in st.session_state:
+        del st.session_state['comScore']
+    if "score" in st.session_state:
+        del st.session_state['score']
+    if "rDone" in st.session_state:
+        del st.session_state['rDone']
+    if "done" in st.session_state:
+        del st.session_state['done']
+    if "simamount" in st.session_state:
+        del st.session_state['simamount']
 
 print(st.session_state)
 
