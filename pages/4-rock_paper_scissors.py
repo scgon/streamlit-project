@@ -281,7 +281,7 @@ if st.session_state["done"] == "Random Simulation" and "simamount" not in st.ses
         place3.empty()
         st.session_state["simamount"] = simamount
 
-else:
+elif st.session_state["done"] == "Random Simulation" and "simamount" in st.session_state:
     place2.markdown("#### :blue[" + str(st.session_state["simamount"]) + " Simulations Will Run]")
     place3.empty()
     
