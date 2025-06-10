@@ -197,7 +197,7 @@ def do_next():
                     gameOver = True
                     donea = True
 
-    if answers[29] != '☐':
+    if answers[29] != '☐' and donea != True:
         gameOver = True
         donea = True
 

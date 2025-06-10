@@ -2,6 +2,9 @@ import streamlit as st
 import random
 import pandas as pd
 from time import sleep
+import sys
+
+sys.setrecursionlimit(1500)
 
 def whoWins(player, computer):
 
@@ -35,9 +38,6 @@ def clear():
     st.session_state['rps'] = None
 
 def resetIt():
-    score = 0
-    comScore = 0
-    rDone = 0
     if "comScore" in st.session_state:
         del st.session_state['comScore']
     if "score" in st.session_state:
@@ -48,8 +48,8 @@ def resetIt():
         del st.session_state['done']
     if "simamount" in st.session_state:
         del st.session_state['simamount']
-
-print(st.session_state)
+    if "tied" in st.session_state:
+        del st.session_state['tied']
 
 ################################################
 
@@ -62,6 +62,7 @@ rDone = 0
 rTotal = 0
 resetQ = False
 hidden = False
+runsimatbottom = False
 
 if "score" not in st.session_state:
     score = 0
@@ -74,6 +75,12 @@ if "comScore" not in st.session_state:
 
 else:
     comScore = st.session_state["comScore"]
+
+if "tied" not in st.session_state:
+    tied = 0
+
+else:
+    tied = st.session_state["tied"]
 
 ################################################
 
@@ -112,6 +119,16 @@ submit = submitSlot.button("Submit", use_container_width=True, key="submit", on_
 
 with st.sidebar:
     reset = st.button("Reset", use_container_width=True)
+    if "done" in st.session_state:
+        if st.session_state["done"] == "Random Simulation":
+            progress_bar = st.sidebar.progress(0, text="Simulation Progress")
+            status_text = st.sidebar.empty()
+
+warningSlot1 = st.empty()
+warningSlot2 = st.empty()
+warningSlot3 = st.empty()
+
+aCols = st.columns([0.6, 0.4])
 
 ################################################
 
@@ -143,8 +160,6 @@ if submit:
                         tied += 1
 
                         if st.session_state["done"] == "Infinite":
-                            score += 1
-                            comScore += 1
                             rDone += 1
 
                     st.markdown("##### You selected: " + colory + "[" + st.session_state["temp"] + "]")
@@ -153,82 +168,32 @@ if submit:
                     st.text(" ")
 
                     if wins == "You win!":
-                        st.success("You win!")
+                        warningSlot1.success("You win!")
 
                     elif wins == "You lose!":
-                        st.error("You lose!")
+                        warningSlot1.error("You lose!")
 
                     else:
-                        st.info("It's a tie!")
+                        warningSlot1.info("It's a tie!")
 
+                    if st.session_state["done"] != "Infinite":
+                        if score >= rTotal // 2 + 1:
+                            warningSlot2.success("You win the game!")
+                            st.balloons()
+                            st.toast("Starting new game")
 
-                    if score >= rTotal // 2 + 1:
-                        st.success("You win the game!")
-                        st.balloons()
-                        st.toast("Starting new game")
+                            resetQ = True
 
-                        resetQ = True
+                        elif comScore >= rTotal // 2 + 1:
+                            warningSlot2.error("Computer wins the game, you lose!")
+                            st.toast("Starting new game")
 
-                    elif comScore >= rTotal // 2 + 1:
-                        st.error("Computer wins the game, you lose!")
-                        st.toast("Starting new game")
-
-                        resetQ = True
+                            resetQ = True
 
                 else:
-                    st.error("Please select rock, paper, or scissors.")
+                    warningSlot1.error("Please select rock, paper, or scissors.")
             else:
-                for i in range(st.session_state["simamount"]):
-                    playerChoice = random.choice(rpsSelect)
-                    computerChoice = random.choice(rpsSelect)
-
-                    wins = whoWins(playerChoice, computerChoice)
-
-                    if wins == "You win!":
-                        score += 1
-                        rDone += 1
-
-                    elif wins == "You lose!":
-                        comScore += 1
-                        rDone += 1
-
-                    else:
-                        tied += 1
-                        rDone += 1
-                
-                if score == comScore:
-                    st.warning("It's a tie! Running an extra round:")
-                    playerChoice = random.choice(rpsSelect)
-                    computerChoice = random.choice(rpsSelect)
-
-                    wins = whoWins(playerChoice, computerChoice)
-
-                    if wins == "You win!":
-                        score += 1
-                        rDone += 1
-
-                    elif wins == "You lose!":
-                        comScore += 1
-                        rDone += 1
-
-                    else:
-                        tied += 1
-                        rDone += 1
-
-                if score > comScore:
-                    st.success("You win the simulation!")
-                    st.balloons()
-                    st.toast("Starting new game")
-                    st.toast("Check out the dataframe and chart below!")
-
-                    resetQ = True
-
-                elif comScore > score:
-                    st.error("Computer wins the simulation, you lose!")
-                    st.toast("Starting new game")
-                    st.toast("Check out the dataframe and chart below!")
-
-                    resetQ = True              
+                runsimatbottom = True
 
 
         else:
@@ -240,14 +205,9 @@ if reset:
     score = 0
     comScore = 0
     rDone = 0
-    if "comScore" in st.session_state:
-        del st.session_state['comScore']
-    if "score" in st.session_state:
-        del st.session_state['score']
-    if "rDone" in st.session_state:
-        del st.session_state['rDone']
-    if "done" in st.session_state:
-        del st.session_state['done']
+    tied = 0
+    resetIt()
+    resetQ = False
 
 ################################################
 
@@ -258,7 +218,6 @@ slot3.markdown("#### :blue[Tied: " + str(tied) + "]")
 if "done" in st.session_state:
     if st.session_state["done"] == "Infinite" or st.session_state["done"] == "Random Simulation":
         slot4.markdown("#### :violet[Round: " + str(rDone) + "]")
-        slot3.markdown("#### :blue[Tied: " + str(tied) + "]")
     else:
         slot3.markdown("#### :orange[Round: " + str(rDone) + "/" + str(rTotal) + "]")
 else:
@@ -302,34 +261,154 @@ if hidden == True:
 
 ################################################
 
-aCols = st.columns([0.6, 0.4])
+if "done" in st.session_state:
+    if st.session_state["done"] != "Random Simulation":
+        aCols = st.columns([0.6, 0.4])
 
-scoreA = score
-comScoreA = comScore
+        scoreA = score
+        comScoreA = comScore
+
+        data = {"Player": ["Player", "Computer", "Tie"], "Score": [scoreA, comScoreA, tied]}
+
+        st.divider()
+
+        df = pd.DataFrame(data)
+
+        st.session_state['df'] = df
+
+        aCols[0].bar_chart(data, x="Player", y="Score")
+
+        aCols[1].dataframe(df)
+
+else:
+    aCols = st.columns([0.6, 0.4])
+
+    scoreA = score
+    comScoreA = comScore
+
+    data = {"Player": ["Player", "Computer", "Tie"], "Score": [scoreA, comScoreA, tied]}
+
+    st.divider()
+
+    df = pd.DataFrame(data)
+
+    st.session_state['df'] = df
+
+    aCols[0].bar_chart(data, x="Player", y="Score")
+
+    aCols[1].dataframe(df)
 
 if "done" in st.session_state:
-    if st.session_state["done"] == "Infinite":
-        scoreA = score - tied
-        comScoreA = comScore - tied
+    if st.session_state["done"] == "Random Simulation":
+        st.markdown("""  
+            :small[:red[ - During a simulation, a progress bar for it will appear on the sidebar.]]   
+            :small[:red[ - I would also recommend to choose a simulation amount no less than 10, and you may have to click the button twice.]]            """)
 
-data = {"Player": ["Player", "Computer", "Tie"], "Score": [scoreA, comScoreA, tied]}
+if runsimatbottom == True:
+    for i in range(st.session_state["simamount"]):
+        playerChoice = random.choice(rpsSelect)
+        computerChoice = random.choice(rpsSelect)
 
-st.divider()
+        wins = whoWins(playerChoice, computerChoice)
 
-df = pd.DataFrame(data)
+        if wins == "You win!":
+            score += 1
+            rDone += 1
 
-st.session_state['df'] = df
+        elif wins == "You lose!":
+            comScore += 1
+            rDone += 1
 
-aCols[0].bar_chart(data, x="Player", y="Score")
+        else:
+            tied += 1
+            rDone += 1
 
-aCols[1].dataframe(df)
+        sleep(7.5 / st.session_state["simamount"])
 
+        progress_bar.progress((round((i + 1) / st.session_state["simamount"] * 100)), text="Simulation Progress")
+        status_text.text(f"{(round((i + 1) / st.session_state["simamount"] * 100, 1))}% complete")
+
+        data = {"Player": ["Player", "Computer", "Tie"], "Score": [score, comScore, tied]}
+
+        df = pd.DataFrame(data)
+
+        st.session_state['df'] = df
+
+        aCols[0] = aCols[0].bar_chart(data, x="Player", y="Score")
+
+        aCols[1] = aCols[1].dataframe(df)
+
+        slot1.markdown("#### :green[Your score: " + str(score) + "]")
+        slot2.markdown("#### :red[Computer score: " + str(comScore) + "]")
+        slot3.markdown("#### :blue[Tied: " + str(tied) + "]")
+        slot4.markdown("#### :violet[Round: " + str(rDone) + "]")
+
+        rpsSlot.empty()
+        submitSlot.empty()
+
+    warningSlot1.warning("Simulation finished!")
+    sleep(2)
+
+    if score == comScore:
+        warningSlot2.warning("It's a tie! Running an extra round:")
+        playerChoice = random.choice(rpsSelect)
+        computerChoice = random.choice(rpsSelect)
+
+        wins = whoWins(playerChoice, computerChoice)
+
+        if wins == "You win!":
+            score += 1
+            rDone += 1
+
+        elif wins == "You lose!":
+            comScore += 1
+            rDone += 1
+
+        else:
+            tied += 1
+            rDone += 1
+
+    if score > comScore:
+        warningSlot3.success("You win the simulation!")
+        st.balloons()
+        st.toast("Starting new game")
+        st.toast("Check out the dataframe and chart below!")
+
+        resetQ = True
+
+    elif comScore > score:
+        warningSlot3.error("Computer wins the simulation, you lose!")
+        st.toast("Starting new game")
+        st.toast("Check out the dataframe and chart below!")
+
+        resetQ = True
+
+    data = {"Player": ["Player", "Computer", "Tie"], "Score": [score, comScore, tied]}
+
+    df = pd.DataFrame(data)
+
+    st.session_state['df'] = df
+
+    aCols[0] = aCols[0].bar_chart(data, x="Player", y="Score")
+
+    aCols[1] = aCols[1].dataframe(df)
+
+    slot1.markdown("#### :green[Your score: " + str(score) + "]")
+    slot2.markdown("#### :red[Computer score: " + str(comScore) + "]")
+    slot3.markdown("#### :blue[Tied: " + str(tied) + "]")
+    slot4.markdown("#### :violet[Round: " + str(rDone) + "]")
+
+    rpsSlot.empty()
+    submitSlot.empty()
 
 ################################################
 
 st.session_state['comScore'] = comScore
 st.session_state['score'] = score
 st.session_state['rDone'] = rDone
+if "done" in st.session_state:
+    if st.session_state["done"] == "Infinite":
+        st.session_state['tied'] = tied
 
 if "temp" in st.session_state:
     del st.session_state['temp']
@@ -339,3 +418,5 @@ if resetQ == True:
     score = 0
     comScore = 0
     rDone = 0
+    tied = 0
+    resetQ = False
