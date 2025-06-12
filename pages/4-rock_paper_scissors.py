@@ -129,6 +129,7 @@ warningSlot2 = st.empty()
 warningSlot3 = st.empty()
 
 aCols = st.columns([0.6, 0.4])
+aSlot = st.empty()
 
 ################################################
 
@@ -263,7 +264,7 @@ if hidden == True:
 
 if "done" in st.session_state:
     if st.session_state["done"] != "Random Simulation":
-        aCols = st.columns([0.6, 0.4])
+        #aCols = st.columns([0.6, 0.4])
 
         scoreA = score
         comScoreA = comScore
@@ -281,7 +282,7 @@ if "done" in st.session_state:
         aCols[1].dataframe(df)
 
 else:
-    aCols = st.columns([0.6, 0.4])
+    #aCols = st.columns([0.6, 0.4])
 
     scoreA = score
     comScoreA = comScore
@@ -305,6 +306,13 @@ if "done" in st.session_state:
             :small[:red[ - I would also recommend to choose a simulation amount no less than 10, and you may have to click the button twice.]]            """)
 
 if runsimatbottom == True:
+    
+    data1 = {"Player": [score], "Computer": [comScore], "Tie": [tied]}
+
+    df1 = pd.DataFrame(data1)
+
+    st.session_state["df1"] = df1
+    
     for i in range(st.session_state["simamount"]):
         playerChoice = random.choice(rpsSelect)
         computerChoice = random.choice(rpsSelect)
@@ -326,7 +334,7 @@ if runsimatbottom == True:
         sleep(7.5 / st.session_state["simamount"])
 
         progress_bar.progress((round((i + 1) / st.session_state["simamount"] * 100)), text="Simulation Progress")
-        status_text.text(f"{(round((i + 1) / st.session_state["simamount"] * 100, 1))}% complete")
+        status_text.text(str(round((i + 1) / st.session_state["simamount"] * 100, 1)) + "% complete")
 
         data = {"Player": ["Player", "Computer", "Tie"], "Score": [score, comScore, tied]}
 
@@ -336,7 +344,22 @@ if runsimatbottom == True:
 
         aCols[0] = aCols[0].bar_chart(data, x="Player", y="Score")
 
-        aCols[1] = aCols[1].dataframe(df)
+        
+        #aCols[1] = aCols[1].dataframe(df)
+
+        data1["Player"].append(score)
+        data1["Computer"].append(comScore)
+        data1["Tie"].append(tied)
+
+        df1 = pd.DataFrame(data1)
+
+        st.session_state["df1"] = df1
+        
+        aCols[1] = aCols[1].dataframe(df1)
+
+        #aSlot[1] = aSlot[1].dataframe(df1)
+
+        aSlot = aSlot.line_chart(df1)
 
         slot1.markdown("#### :green[Your score: " + str(score) + "]")
         slot2.markdown("#### :red[Computer score: " + str(comScore) + "]")
@@ -347,7 +370,7 @@ if runsimatbottom == True:
         submitSlot.empty()
 
     warningSlot1.warning("Simulation finished!")
-    sleep(2)
+    sleep(1)
 
     if score == comScore:
         warningSlot2.warning("It's a tie! Running an extra round:")
@@ -367,6 +390,18 @@ if runsimatbottom == True:
         else:
             tied += 1
             rDone += 1
+
+        data1["Player"].append(score)
+        data1["Computer"].append(comScore)
+        data1["Tie"].append(tied)
+
+        df1 = pd.DataFrame(data1)
+
+        st.session_state["df1"] = df1
+
+        aSlot = aSlot.line_chart(df1)
+
+        sleep(0.5)
 
     if score > comScore:
         warningSlot3.success("You win the simulation!")
@@ -388,10 +423,10 @@ if runsimatbottom == True:
     df = pd.DataFrame(data)
 
     st.session_state['df'] = df
-
+    
     aCols[0] = aCols[0].bar_chart(data, x="Player", y="Score")
 
-    aCols[1] = aCols[1].dataframe(df)
+    aCols[1] = aCols[1].dataframe(df1)
 
     slot1.markdown("#### :green[Your score: " + str(score) + "]")
     slot2.markdown("#### :red[Computer score: " + str(comScore) + "]")
