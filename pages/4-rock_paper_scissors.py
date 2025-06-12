@@ -2,9 +2,6 @@ import streamlit as st
 import random
 import pandas as pd
 from time import sleep
-import sys
-
-sys.setrecursionlimit(1500)
 
 def whoWins(player, computer):
 
@@ -242,7 +239,7 @@ else:
 
 if "done" in st.session_state:
     if st.session_state["done"] == "Random Simulation" and "simamount" not in st.session_state:
-        simamount = place2.number_input("How many simulations should run?", 1, 1000)
+        simamount = place2.number_input("How many simulations should run?", 9, 799)
         simamountSubmit = place3.button("Submit Simulations Amount", use_container_width=True, key="simamountsubmit")
         hidden = True
     
@@ -299,11 +296,6 @@ else:
 
     aCols[1].dataframe(df)
 
-if "done" in st.session_state:
-    if st.session_state["done"] == "Random Simulation":
-        st.markdown("""  
-            :small[:red[ - During a simulation, a progress bar for it will appear on the sidebar.]]   
-            :small[:red[ - I would also recommend to choose a simulation amount no less than 10, and you may have to click the button twice.]]            """)
 
 if runsimatbottom == True:
     
@@ -333,6 +325,11 @@ if runsimatbottom == True:
 
         sleep(7.5 / st.session_state["simamount"])
 
+        if st.session_state["simamount"] < 300:
+            sleep(7.5 / st.session_state["simamount"])
+        else:
+            sleep(0.01)
+
         progress_bar.progress((round((i + 1) / st.session_state["simamount"] * 100)), text="Simulation Progress")
         status_text.text(str(round((i + 1) / st.session_state["simamount"] * 100, 1)) + "% complete")
 
@@ -347,19 +344,23 @@ if runsimatbottom == True:
         
         #aCols[1] = aCols[1].dataframe(df)
 
-        data1["Player"].append(score)
-        data1["Computer"].append(comScore)
-        data1["Tie"].append(tied)
+        if st.session_state["simamount"] < 400:
+            data1["Player"].append(score)
+            data1["Computer"].append(comScore)
+            data1["Tie"].append(tied)
 
-        df1 = pd.DataFrame(data1)
+            df1 = pd.DataFrame(data1)
 
-        st.session_state["df1"] = df1
-        
-        aCols[1] = aCols[1].dataframe(df1)
+            st.session_state["df1"] = df1
+
+            aSlot = aSlot.line_chart(df1)
+
+        if st.session_state["simamount"] >= 100:
+            aCols[1] = aCols[1].dataframe(df)
+        else:
+            aCols[1] = aCols[1].dataframe(df1)
 
         #aSlot[1] = aSlot[1].dataframe(df1)
-
-        aSlot = aSlot.line_chart(df1)
 
         slot1.markdown("#### :green[Your score: " + str(score) + "]")
         slot2.markdown("#### :red[Computer score: " + str(comScore) + "]")
@@ -372,7 +373,7 @@ if runsimatbottom == True:
     warningSlot1.warning("Simulation finished!")
     sleep(1)
 
-    if score == comScore:
+    while score == comScore:
         warningSlot2.warning("It's a tie! Running an extra round:")
         playerChoice = random.choice(rpsSelect)
         computerChoice = random.choice(rpsSelect)
@@ -391,15 +392,17 @@ if runsimatbottom == True:
             tied += 1
             rDone += 1
 
-        data1["Player"].append(score)
-        data1["Computer"].append(comScore)
-        data1["Tie"].append(tied)
+        if st.session_state["simamount"] < 400:
+            data1["Player"].append(score)
+            data1["Computer"].append(comScore)
+            data1["Tie"].append(tied)
 
-        df1 = pd.DataFrame(data1)
+            df1 = pd.DataFrame(data1)
 
-        st.session_state["df1"] = df1
+            st.session_state["df1"] = df1
 
-        aSlot = aSlot.line_chart(df1)
+            aSlot = aSlot.line_chart(df1)
+
 
         sleep(0.5)
 
@@ -426,7 +429,10 @@ if runsimatbottom == True:
     
     aCols[0] = aCols[0].bar_chart(data, x="Player", y="Score")
 
-    aCols[1] = aCols[1].dataframe(df1)
+    if st.session_state["simamount"] >= 100:
+        aCols[1] = aCols[1].dataframe(df)
+    else:
+        aCols[1] = aCols[1].dataframe(df1)
 
     slot1.markdown("#### :green[Your score: " + str(score) + "]")
     slot2.markdown("#### :red[Computer score: " + str(comScore) + "]")
